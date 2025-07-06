@@ -1,22 +1,30 @@
-# Generated with JReleaser 1.17.0 at 2025-07-06T11:18:36.982926+02:00
+# Generated with JReleaser 1.17.0 at 2025-07-06T15:39:04.202637+02:00
 
 class ProvidenceCollector < Formula
   desc "Providence Collector"
   homepage "https://github.com/orpiske/providence"
-  url "https://github.com/orpiske/providence/releases/download/v0.0.8/providence-collector-0.0.8-bin.zip"
-  version "0.0.8"
-  sha256 "44146a60b8da7208fa62bac51019824f5c18f2e8b7aa8c59b5d9e98cc65f4074"
+  url "https://github.com/orpiske/providence/releases/download/v0.0.9/providence-collector-0.0.9-jar-with-dependencies.jar", :using => :nounzip
+  version "0.0.9"
+  sha256 "ddfdad610fe06f027f2e05566dbdff8210e95927ff34d96918f439f068204449"
   license "Apache-2.0"
 
   depends_on "openjdk@17"
 
   def install
-    libexec.install Dir["*"]
-    bin.install_symlink "#{libexec}/bin/providence-collector" => "providence-collector"
+    libexec.install "providence-collector-0.0.9-jar-with-dependencies.jar"
+
+    bin.mkpath
+    File.open("#{bin}/providence-collector", "w") do |f|
+      f.write <<~EOS
+        #!/bin/bash
+        export JAVA_HOME="#{Language::Java.overridable_java_home_env(nil)[:JAVA_HOME]}"
+        exec "${JAVA_HOME}/bin/java" -jar #{libexec}/providence-collector-0.0.9-jar-with-dependencies.jar "$@"
+      EOS
+    end
   end
 
   test do
     output = shell_output("#{bin}/providence-collector --version")
-    assert_match "0.0.8", output
+    assert_match "0.0.9", output
   end
 end
